@@ -18,7 +18,7 @@ fn get_number_origin_and_value(grid: &[Vec<char>], x: usize, y: usize) -> (usize
     (x, y_start, number)
 }
 
-fn get_adjacent_numbers(grid: &mut Vec<Vec<char>>, x: usize, y: usize) -> Vec<(usize, usize, u32)> {
+fn get_adjacent_numbers(grid: &[Vec<char>], x: usize, y: usize) -> Vec<(usize, usize, u32)> {
     let mut adjacent = HashSet::new();
 
     for i in x.saturating_sub(1)..=x + 1 {
@@ -36,13 +36,13 @@ fn get_adjacent_numbers(grid: &mut Vec<Vec<char>>, x: usize, y: usize) -> Vec<(u
 }
 
 pub fn part_one(input: &str) -> u32 {
-    let mut grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let mut numbers = HashSet::new();
 
     for x in 0..grid.len() {
         for y in 0..grid[x].len() {
             if grid[x][y] != '.' && !grid[x][y].is_ascii_digit() {
-                let adjacent = get_adjacent_numbers(&mut grid, x, y);
+                let adjacent = get_adjacent_numbers(&grid, x, y);
                 for (x, y, n) in adjacent {
                     numbers.insert((x, y, n));
                 }
@@ -55,12 +55,12 @@ pub fn part_one(input: &str) -> u32 {
 
 pub fn part_two(input: &str) -> u32 {
     let mut gear_ratio_sum = 0;
-    let mut grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
     for x in 0..grid.len() {
         for y in 0..grid[x].len() {
             if grid[x][y] == '*' {
-                let adjacent = get_adjacent_numbers(&mut grid, x, y);
+                let adjacent = get_adjacent_numbers(&grid, x, y);
                 if adjacent.len() == 2 {
                     let gear_ratio = adjacent[0].2 * adjacent[1].2;
                     gear_ratio_sum += gear_ratio;
