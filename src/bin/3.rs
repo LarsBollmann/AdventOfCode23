@@ -12,7 +12,7 @@ fn get_number_origin_and_value(grid: &[Vec<char>], x: usize, y: usize) -> (usize
 
     let y_start = y;
     while y < grid[x].len() && grid[x][y].is_ascii_digit() {
-        number += number * 10 + grid[x][y].to_digit(10).unwrap();
+        number = number * 10 + grid[x][y].to_digit(10).unwrap();
         y += 1;
     }
     (x, y_start, number)
