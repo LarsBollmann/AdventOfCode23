@@ -20,7 +20,7 @@ pub fn get_number_of_solutions(time: usize, distance: usize) -> usize {
         i => i.floor() as usize,
     };
 
-    (win_time_min..=win_time_max).count()
+    win_time_max - win_time_min + 1
 }
 
 
