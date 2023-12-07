@@ -28,61 +28,58 @@ pub fn get_hand_value(hand: &str) -> usize {
     counts.reverse();
 
     // I am so sorry for this
-    let mut hand_value: usize = {
-        match counts.get(0) {
-            None => 9, // Five jokers
-            Some(count) => match count {
-                5 => 9, // Five of a kind, no jokers
-                4 => match ones {
-                    // Four of a kind
-                    1 => 9, // becomes five of a kind with one joker
-                    _ => 8,
-                },
-                3 => match ones {
-                    // Three of a kind
-                    2 => 9, // becomes five of a kind with two jokers
-                    1 => 8, // becomes four of a kind with one joker
-                    _ => match counts.get(1).unwrap() {
-                        // three of kind, check for full house
-                        2 => 7, // full house
-                        _ => 6, // three of a kind
-                    },
-                },
-                2 => match ones {
-                    // Pair
-                    3 => 9, // becomes five of a kind with three jokers
-                    2 => 8, // becomes four of a kind with two jokers
-                    1 => match counts.get(1).unwrap() {
-                        // could be full house or three of a kind with one joker
-                        2 => 7, // full house
-                        _ => 6, // three of a kind
-                    },
-                    _ => match counts.get(1).unwrap() {
-                        // check for two pair
-                        2 => 5, // two pair
-                        _ => 4, // pair
-                    },
-                },
-                1 => match ones {
-                    4 => 9, // becomes five of a kind with four jokers
-                    3 => 8, // becomes four of a kind with three jokers
-                    2 => match counts.get(1).unwrap() {
-                        // could be full house or three of a kind with two jokers
-                        2 => 7, // full house
-                        _ => 6, // three of a kind
-                    },
-                    1 => match counts.get(1).unwrap() {
-                        // could be two pair or pair with one joker
-                        2 => 5, // two pair
-                        _ => 4, // pair
-                    },
-                    _ => 3, // high card
-                },
-                _ => panic!("Invalid hand"),
+    let mut hand_value: usize = match counts.get(0) { // Match highest count of any card
+        None => 9, // Five jokers
+        Some(count) => match count {
+            5 => 9, // Five of a kind, no jokers
+            4 => match ones {
+                // Four of a kind
+                1 => 9, // becomes five of a kind with one joker
+                _ => 8,
             },
-        }
+            3 => match ones {
+                // Three of a kind
+                2 => 9, // becomes five of a kind with two jokers
+                1 => 8, // becomes four of a kind with one joker
+                _ => match counts.get(1).unwrap() {
+                    // three of kind, check for full house
+                    2 => 7, // full house
+                    _ => 6, // three of a kind
+                },
+            },
+            2 => match ones {
+                // Pair
+                3 => 9, // becomes five of a kind with three jokers
+                2 => 8, // becomes four of a kind with two jokers
+                1 => match counts.get(1).unwrap() {
+                    // could be full house or three of a kind with one joker
+                    2 => 7, // full house
+                    _ => 6, // three of a kind
+                },
+                _ => match counts.get(1).unwrap() {
+                    // check for two pair
+                    2 => 5, // two pair
+                    _ => 4, // pair
+                },
+            },
+            1 => match ones {
+                4 => 9, // becomes five of a kind with four jokers
+                3 => 8, // becomes four of a kind with three jokers
+                2 => match counts.get(1).unwrap() {
+                    // could be full house or three of a kind with two jokers
+                    2 => 7, // full house
+                    _ => 6, // three of a kind
+                },
+                1 => match counts.get(1).unwrap() {
+                    // could be two pair or pair with one joker
+                    2 => 5, // two pair
+                    _ => 4, // pair
+                },
+                _ => 3, // high card
+            },
+            _ => panic!("Invalid hand"),
+        },
     };
-
 
     for c in hand.chars() {
         hand_value = hand_value * 15 + map_char_to_value(c) as usize;
