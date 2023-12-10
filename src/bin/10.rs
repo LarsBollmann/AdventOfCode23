@@ -120,19 +120,20 @@ pub fn get_next_connected(
     panic!("No connected pipe found at ({}, {})", x, y);
 }
 
-pub fn part_one(input: &str) -> i32 {
-    let ((mut x, mut y), map) = parse_input(input);
+pub fn solve(input: &str) -> (usize, usize) {
+    let ((mut x, mut y), pipe_map) = parse_input(input);
 
     let mut steps = 0;
-    let mut current_pipe = &map[y][x];
+    let mut current_pipe;
     let mut coming_from = Direction::South;
 
     let mut pipe_coordinates = vec![(x, y)];
 
+    // Part 1
     loop {
         steps += 1;
-        (x, y, coming_from) = get_next_connected(&map, x, y, coming_from);
-        current_pipe = &map[y][x];
+        (x, y, coming_from) = get_next_connected(&pipe_map, x, y, coming_from);
+        current_pipe = &pipe_map[y][x];
         pipe_coordinates.push((x, y));
 
         if current_pipe.is_start() {
@@ -140,17 +141,69 @@ pub fn part_one(input: &str) -> i32 {
         }
     }
 
-    steps / 2
-}
+    // Part 2
+    // Create a map with 3x3 squares
+    let mut fill_map = vec![vec!['.'; pipe_map[0].len() * 3]; pipe_map.len() * 3];
 
-// pub fn part_two(input: &str) -> i32 {
-//     1
-// }
+    for (x, y) in pipe_coordinates {
+        let pipe = &pipe_map[y][x];
+
+        let mut square = vec![vec!['.'; 3]; 3];
+        square[1][1] = '#';
+
+        for connection in pipe.connections.iter() {
+            match connection {
+                Direction::North => square[0][1] = '#',
+                Direction::South => square[2][1] = '#',
+                Direction::East => square[1][2] = '#',
+                Direction::West => square[1][0] = '#',
+            }
+        }
+
+        for (i, row) in square.iter().enumerate() {
+            for (j, c) in row.iter().enumerate() {
+                fill_map[y * 3 + i][x * 3 + j] = *c;
+            }
+        }
+    }
+
+    // Flood from the outside
+    let mut queue = vec![(0, 0)];
+
+    while let Some((x, y)) = queue.pop() {
+        if fill_map[y][x] == '.' {
+            fill_map[y][x] = 'F';
+
+            if x > 0 {
+                queue.push((x - 1, y));
+            }
+            if x < fill_map[y].len() - 1 {
+                queue.push((x + 1, y));
+            }
+            if y > 0 {
+                queue.push((x, y - 1));
+            }
+            if y < fill_map.len() - 1 {
+                queue.push((x, y + 1));
+            }
+        }
+    }
+
+    // Count every unflooded 3x3 square
+    let mut count = 0;
+    for y in 0..fill_map.len() / 3 {
+        for x in 0..fill_map[y].len() / 3 {
+            if fill_map[y * 3 + 1][x * 3 + 1] == '.' {
+                count += 1;
+            }
+        }
+    }
+    (steps / 2, count)
+}
 
 pub fn main() {
     let input = get_input(10);
-    println!("Part one: {:?}", part_one(&input));
-    //println!("Part two: {:?}", part_two(&input));
+    println!("Solution: {:?}", solve(&input));
 }
 
 #[cfg(test)]
@@ -161,20 +214,20 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = get_example(10);
-        assert_eq!(part_one(&input), 8);
+        assert_eq!(solve(&input).0, 8);
     }
 
-    //     #[test]
-    //     fn test_part_two() {
-    //         let input = "..........
-    // .S------7.
-    // .|F----7|.
-    // .||....||.
-    // .||....||.
-    // .|L-7F-J|.
-    // .|..||..|.
-    // .L--JL--J.
-    // ..........";
-    //         assert_eq!(part_one(&input), 2);
-    //     }
+    #[test]
+    fn test_part_two() {
+        let input = "..........
+.S------7.
+.|F----7|.
+.||....||.
+.||....||.
+.|L-7F-J|.
+.|..||..|.
+.L--JL--J.
+..........";
+        assert_eq!(solve(&input).1, 4);
+    }
 }
